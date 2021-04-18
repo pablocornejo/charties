@@ -1,7 +1,7 @@
 import XCTest
 
-import ChartieTests
+import ChartiesTests
 
 var tests = [XCTestCaseEntry]()
-tests += ChartieTests.allTests()
+tests += ChartiesTests.allTests()
 XCTMain(tests)

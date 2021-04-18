@@ -1,5 +1,5 @@
 import XCTest
-@testable import Chartie
+@testable import Charties
 
 final class ChartieTests: XCTestCase {
     func testExample() {
