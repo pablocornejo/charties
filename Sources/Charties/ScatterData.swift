@@ -10,6 +10,8 @@ import CoreGraphics
 
 public struct ScatterData {
     let data: [(x: Int, y: Double)]
+    let xAxisTitle: String?
+    let yAxisTitle: String?
     var yAxisMarkSize: Double
     var alwaysShowZero: Bool
     
@@ -63,8 +65,14 @@ public struct ScatterData {
     var xAxisSpan: Int { maxX - minX }
     var yAxisSpan: Double { maxY - minY }
     
-    init(_ data: [(x: Int, y: Double)], yAxisMarkSize: Double = 0, alwaysShowZero: Bool = true) {
+    init(_ data: [(x: Int, y: Double)],
+         xAxisTitle: String? = nil,
+         yAxisTitle: String? = nil,
+         yAxisMarkSize: Double = 0,
+         alwaysShowZero: Bool = true) {
         self.data = data
+        self.xAxisTitle = xAxisTitle
+        self.yAxisTitle = yAxisTitle
         self.yAxisMarkSize = yAxisMarkSize
         self.alwaysShowZero = alwaysShowZero
     }
