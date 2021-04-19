@@ -16,28 +16,26 @@ public struct ScatterChart<Marker: View>: View {
     let marker: Marker
     let markerSize: CGSize
     let lineStyle: ScatterLineStyle
-    var xLabelTextProvider: (Int) -> String = {
-        "\($0)"
-    }
+    var xLabelTextProvider: (Int) -> String = { "\($0)" }
     
     public var body: some View {
         GeometryReader { reader in
             HStack {
                 VStack {
                     HStack {
-                        Text("pH") // TODO: make dynamic
-                        if data.yAxisMarkSize > 0 {
-                            ScatterYAxisLabels(data: data, xLabelTextProvider: xLabelTextProvider)
-                                .frame(width: 24)
+                        if let yTitle = data.yAxisTitle {
+                            Text(yTitle)
                         }
+                        ScatterYAxisLabels(data: data, xLabelTextProvider: xLabelTextProvider)
+                            .frame(width: yAxisLabelsWidth)
                     }
                         
-                    Spacer(minLength: 24 + 8 + 24) // TODO: refactor for explicitness
+                    Spacer(minLength: yAxisElementsBottomSpace)
                 }
                 
                 VStack(spacing: 0) {
                     ZStack {
-                        ScatterYAxisGuidelines(data: data) // TODO: Only show when y mark size > 0
+                        ScatterYAxisGuidelines(data: data)
                         
                         switch lineStyle {
                         case .smooth:   SmoothScatterLine(data: data)
@@ -48,20 +46,32 @@ public struct ScatterChart<Marker: View>: View {
                         ScatterMarkers(data: data,
                                        marker: marker,
                                        markerSize: markerSize,
-                                       appearAnimation: .fadeIn(1.5))
+                                       appearAnimation: .fadeIn(1.5)) // TODO: Refactor out animation
                     }
                     .layoutPriority(1)
                     
                     ScatterXAxisLabels(data: data, xLabelTextProvider: xLabelTextProvider)
-                        .frame(height: 24)
-                        .padding(.top, 8)
+                        .frame(height: xAxisLabelsHeight)
+                        .padding(.top, xAxisLabelsTopPadding)
                     
-                    Text("X axis title")
-                        .frame(height: 24)
+                    if let xTitle = data.xAxisTitle {
+                        Text(xTitle)
+                            .frame(height: xAxisTitleHeight)
+                    }
                 }
             }
         }
         .padding()
+    }
+    
+    private let xAxisLabelsHeight: CGFloat = 24
+    private let xAxisLabelsTopPadding: CGFloat = 8
+    private let xAxisTitleHeight: CGFloat = 24
+    
+    private let yAxisLabelsWidth: CGFloat = 24
+    private var yAxisElementsBottomSpace: CGFloat {
+        xAxisLabelsHeight + xAxisLabelsTopPadding +
+            (data.xAxisTitle.map { _ in xAxisTitleHeight } ?? 0)
     }
 }
 
@@ -90,18 +100,20 @@ struct ScatterYAxisLabels: View {
     
     var body: some View {
         GeometryReader { reader in
-            let steps = Int(data.yAxisSpan / data.yAxisMarkSize) // TODO: handle 0 yAxisMarkSize
-            let yStep = reader.size.height / CGFloat(steps)
-
-            ForEach(0..<steps + 1) { idx in
-                let yValue = data.maxY - Double(idx) * data.yAxisMarkSize
-                let text = yValue == 0 ? "0" : String(format: "%.1f", yValue)
-
-                let height = text.size(withFont: .preferredFont(forTextStyle: .caption1)).height
+            if data.yAxisMarkSize > 0 {
+                let steps = Int(data.yAxisSpan / data.yAxisMarkSize)
+                let yStep = reader.size.height / CGFloat(steps)
                 
-                Text(text)
-                    .font(.caption)
-                    .offset(y: CGFloat(idx) * yStep - height / 2)
+                ForEach(0..<steps + 1) { idx in
+                    let yValue = data.maxY - Double(idx) * data.yAxisMarkSize
+                    let text = yValue == 0 ? "0" : String(format: "%.1f", yValue)
+                    
+                    let height = text.size(withFont: .preferredFont(forTextStyle: .caption1)).height
+                    
+                    Text(text)
+                        .font(.caption)
+                        .offset(y: CGFloat(idx) * yStep - height / 2)
+                }
             }
         }
     }
@@ -111,17 +123,19 @@ struct ScatterYAxisGuidelines: View {
     let data: ScatterData
     
     var body: some View {
-        GeometryReader { reader in
-            let steps = Int(data.yAxisSpan / data.yAxisMarkSize)
-            let yStep = reader.size.height / CGFloat(steps)
-
-            ForEach(0..<steps + 1) { idx in
-                let yValue = data.maxY - Double(idx) * data.yAxisMarkSize
+        if data.yAxisMarkSize > 0 {
+            GeometryReader { reader in
+                let steps = Int(data.yAxisSpan / data.yAxisMarkSize)
+                let yStep = reader.size.height / CGFloat(steps)
                 
-                Rectangle()
-                    .foregroundColor(yValue == 0 ? .primary : .secondary)
-                    .frame(height: 1)
-                    .offset(y: CGFloat(idx) * yStep)
+                ForEach(0..<steps + 1) { idx in
+                    let yValue = data.maxY - Double(idx) * data.yAxisMarkSize
+                    
+                    Rectangle()
+                        .foregroundColor(yValue == 0 ? .primary : .secondary)
+                        .frame(height: 1)
+                        .offset(y: CGFloat(idx) * yStep)
+                }
             }
         }
     }
@@ -163,6 +177,7 @@ struct SmoothScatterLine: View {
                 }
             }
             .trim(from: 0, to: didAppear ? 1 : 0)
+            // TODO: Refactor out stroke content and animation
             .stroke(LinearGradient(gradient: Gradient(colors: [.yellow, .orange]), startPoint: .leading, endPoint: .trailing), style: StrokeStyle(lineWidth: 3, lineCap: .round, lineJoin: .round))
             .animation(Animation.easeOut(duration: 1.5).delay(0.2))
             .onAppear {
@@ -228,6 +243,7 @@ struct StraightScatterLine: View {
                 path.addLines(points)
             }
             .trim(from: 0, to: didAppear ? 1 : 0)
+            // TODO: Refactor out stroke content and animation
             .stroke(LinearGradient(gradient: Gradient(colors: [.yellow, .orange]), startPoint: .leading, endPoint: .trailing), style: StrokeStyle(lineWidth: 3, lineCap: .round, lineJoin: .round))
             .animation(Animation.easeOut(duration: 1.5).delay(0.2))
             .onAppear {
@@ -261,7 +277,9 @@ struct ScatterChart_Previews: PreviewProvider {
                                 (x: 6, y: 2.5),
                                 (x: 7, y: 2),
                                 (x: 9, y: 1),
-                                (x: 10, y: 2.75)])
+                                (x: 10, y: 2.75)],
+                               xAxisTitle: "Day",
+                               yAxisTitle: "pH")
         data.yAxisMarkSize = 1
         data.alwaysShowZero = true
         return data
