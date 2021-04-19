@@ -20,15 +20,6 @@ struct ScatterMarkers<Marker: View>: View {
 
     @State private var didAppear = false
     
-    private var appearAnimDuration: Double {
-        switch appearAnimation {
-        case .none:
-            return 0
-        case .fadeIn(let duration):
-            return duration
-        }
-    }
-    
     var body: some View {
         GeometryReader { reader in
             let height = reader.size.height
