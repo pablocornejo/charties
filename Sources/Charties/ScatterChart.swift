@@ -11,29 +11,38 @@ enum ScatterLineStyle {
     case straight, smooth, none
 }
 
+private extension VerticalAlignment {
+    private enum BottomYLabelsAndPlot: AlignmentID {
+        static func defaultValue(in context: ViewDimensions) -> CGFloat {
+            context[.bottom]
+        }
+    }
+    
+    static let bottomYLabelsAndPlot = VerticalAlignment(BottomYLabelsAndPlot.self)
+}
+
 public struct ScatterChart<Marker: View>: View {
     let data: ScatterData
     let marker: Marker
     let markerSize: CGSize
     let lineStyle: ScatterLineStyle
-    var xLabelTextProvider: (Int) -> String = { "\($0)" }
+    var xLabelConfigProvider: (Int) -> (text: String?, angle: Angle) = { ("\($0)", .zero) }
     
     public var body: some View {
         GeometryReader { reader in
-            HStack {
+            HStack(alignment: .bottomYLabelsAndPlot) {
                 VStack {
                     HStack {
                         if let yTitle = data.yAxisTitle {
                             Text(yTitle)
                         }
-                        ScatterYAxisLabels(data: data, xLabelTextProvider: xLabelTextProvider)
-                            .frame(width: yAxisLabelsWidth)
+                        ScatterYAxisLabels(data: data)
                     }
-                        
-                    Spacer(minLength: yAxisElementsBottomSpace)
+                    .frame(height: reader.size.height)
+                    .alignmentGuide(.bottomYLabelsAndPlot) { $0[.bottom] }
                 }
                 
-                VStack(spacing: 0) {
+                VStack {
                     ZStack {
                         ScatterYAxisGuidelines(data: data)
                         
@@ -48,20 +57,21 @@ public struct ScatterChart<Marker: View>: View {
                                        markerSize: markerSize,
                                        appearAnimation: .fadeIn(1.5)) // TODO: Refactor out animation
                     }
-                    .layoutPriority(1)
+                    .padding(.leading, plotLeadingPadding)
+                    .padding(.trailing, plotTrailingPadding)
+                    .frame(height: reader.size.height)
+                    .alignmentGuide(.bottomYLabelsAndPlot) { $0[.bottom] }
                     
-                    ScatterXAxisLabels(data: data, xLabelTextProvider: xLabelTextProvider)
-                        .frame(height: xAxisLabelsHeight)
-                        .padding(.top, xAxisLabelsTopPadding)
+                    ScatterXAxisLabels(data: data, xLabelConfigProvider: xLabelConfigProvider)
                     
                     if let xTitle = data.xAxisTitle {
                         Text(xTitle)
-                            .frame(height: xAxisTitleHeight)
+                            .font(.callout)
                     }
                 }
             }
         }
-        .padding()
+        .padding(.bottom)
     }
     
     private let xAxisLabelsHeight: CGFloat = 24
@@ -73,22 +83,43 @@ public struct ScatterChart<Marker: View>: View {
         xAxisLabelsHeight + xAxisLabelsTopPadding +
             (data.xAxisTitle.map { _ in xAxisTitleHeight } ?? 0)
     }
+    
+    private let axisLabelsFont: UIFont = .preferredFont(forTextStyle: .caption1)
+    
+    private var plotLeadingPadding: CGFloat {
+        xLabelConfigProvider(data.minX)
+            .text
+            .map {
+                $0.size(withFont: axisLabelsFont).width / 2
+            } ?? 0
+    }
+    
+    private var plotTrailingPadding: CGFloat {
+        xLabelConfigProvider(data.maxX)
+            .text
+            .map {
+                $0.size(withFont: axisLabelsFont).width / 2
+            } ?? 0
+    }
 }
 
 struct ScatterXAxisLabels: View {
     let data: ScatterData
-    let xLabelTextProvider: (Int) -> String
+    let xLabelConfigProvider: (Int) -> (text: String?, angle: Angle)
     
     var body: some View {
-        GeometryReader { reader in
-            let xStep = reader.size.width / CGFloat(data.xAxisSpan)
-
-            ForEach(0..<data.xAxisSpan + 1) { idx in
-                let text = xLabelTextProvider(data.minX + idx)
-                let width = text.size(withFont: .preferredFont(forTextStyle: .caption1)).width
-                Text(text)
-                    .font(.caption)
-                    .offset(x: CGFloat(idx) * xStep - width / 2)
+        HStack {
+            ForEach(data.minX..<data.maxX + 1) { x in
+                let config = xLabelConfigProvider(x)
+                if let text = config.text {
+                    Text(text)
+                        .font(.caption)
+                        .rotationEffect(config.angle)
+                    
+                    if x < data.maxX {
+                        Spacer()
+                    }
+                }
             }
         }
     }
@@ -96,26 +127,44 @@ struct ScatterXAxisLabels: View {
 
 struct ScatterYAxisLabels: View {
     let data: ScatterData
-    let xLabelTextProvider: (Int) -> String
     
     var body: some View {
-        GeometryReader { reader in
+        VStack(alignment: .trailing) {
             if data.yAxisMarkSize > 0 {
                 let steps = Int(data.yAxisSpan / data.yAxisMarkSize)
-                let yStep = reader.size.height / CGFloat(steps)
                 
                 ForEach(0..<steps + 1) { idx in
                     let yValue = data.maxY - Double(idx) * data.yAxisMarkSize
-                    let text = yValue == 0 ? "0" : String(format: "%.1f", yValue)
                     
-                    let height = text.size(withFont: .preferredFont(forTextStyle: .caption1)).height
-                    
-                    Text(text)
+                    Text(text(forYValue: yValue))
                         .font(.caption)
-                        .offset(y: CGFloat(idx) * yStep - height / 2)
+                    
+                    if idx < steps {
+                        Spacer()
+                    }
                 }
             }
         }
+        .padding(.top, topPadding)
+        .padding(.bottom, bottomPadding)
+    }
+    
+    private let font: UIFont = .preferredFont(forTextStyle: .caption1)
+    
+    private var topPadding: CGFloat {
+        -text(forYValue: data.maxY)
+            .size(withFont: font)
+            .height / 2
+    }
+    
+    private var bottomPadding: CGFloat {
+        -text(forYValue: data.minY)
+            .size(withFont: font)
+            .height / 2
+    }
+    
+    private func text(forYValue yValue: Double) -> String {
+        yValue == 0 ? "0" : String(format: "%.1f", yValue)
     }
 }
 
