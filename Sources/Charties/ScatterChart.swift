@@ -21,6 +21,33 @@ private extension VerticalAlignment {
     static let bottomYLabelsAndPlot = VerticalAlignment(BottomYLabelsAndPlot.self)
 }
 
+struct SizeUpdaterView: View {
+    private struct SizePreferenceKey: PreferenceKey {
+        static var defaultValue: CGSize = .zero
+
+        static func reduce(value: inout CGSize, nextValue: () -> CGSize) {
+            value = nextValue()
+        }
+    }
+    
+    @Binding var size: CGSize
+    
+    init(_ size: Binding<CGSize>) {
+        self._size = size
+    }
+    
+    var body: some View {
+        GeometryReader { geometry in
+            Rectangle()
+                .fill(Color.clear)
+                .preference(key: SizePreferenceKey.self, value: geometry.size)
+        }
+        .onPreferenceChange(SizePreferenceKey.self) { value in
+            size = value
+        }
+    }
+}
+
 public struct ScatterChart<Marker: View>: View {
     let data: ScatterData
     let marker: Marker
@@ -28,50 +55,47 @@ public struct ScatterChart<Marker: View>: View {
     let lineStyle: ScatterLineStyle
     var xLabelConfigProvider: (Int) -> (text: String?, angle: Angle) = { ("\($0)", .zero) }
     
+    @State private var plotSize: CGSize = .zero
+    
     public var body: some View {
-        GeometryReader { reader in
-            HStack(alignment: .bottomYLabelsAndPlot) {
-                VStack {
-                    HStack {
-                        if let yTitle = data.yAxisTitle {
-                            Text(yTitle)
-                        }
-                        ScatterYAxisLabels(data: data)
-                    }
-                    .frame(height: reader.size.height)
-                    .alignmentGuide(.bottomYLabelsAndPlot) { $0[.bottom] }
+        HStack(alignment: .bottomYLabelsAndPlot) {
+            HStack {
+                if let yTitle = data.yAxisTitle {
+                    Text(yTitle)
                 }
-                
-                VStack {
-                    ZStack {
-                        ScatterYAxisGuidelines(data: data)
-                        
-                        switch lineStyle {
-                        case .smooth:   SmoothScatterLine(data: data)
-                        case .straight: StraightScatterLine(data: data)
-                        case .none:     EmptyView()
-                        }
-                        
-                        ScatterMarkers(data: data,
-                                       marker: marker,
-                                       markerSize: markerSize,
-                                       appearAnimation: .fadeIn(1.5)) // TODO: Refactor out animation
-                    }
-                    .padding(.leading, plotLeadingPadding)
-                    .padding(.trailing, plotTrailingPadding)
-                    .frame(height: reader.size.height)
+                ScatterYAxisLabels(data: data)
                     .alignmentGuide(.bottomYLabelsAndPlot) { $0[.bottom] }
+            }
+            .frame(height: plotSize.height)
+            
+            VStack {
+                ZStack {
+                    ScatterYAxisGuidelines(data: data)
                     
-                    ScatterXAxisLabels(data: data, xLabelConfigProvider: xLabelConfigProvider)
-                    
-                    if let xTitle = data.xAxisTitle {
-                        Text(xTitle)
-                            .font(.callout)
+                    switch lineStyle {
+                    case .smooth:   SmoothScatterLine(data: data)
+                    case .straight: StraightScatterLine(data: data)
+                    case .none:     EmptyView()
                     }
+                    
+                    ScatterMarkers(data: data,
+                                   marker: marker,
+                                   markerSize: markerSize,
+                                   appearAnimation: .fadeIn(1.5)) // TODO: Refactor out animation
+                }
+                .padding(.leading, plotLeadingPadding)
+                .padding(.trailing, plotTrailingPadding)
+                .alignmentGuide(.bottomYLabelsAndPlot) { $0[.bottom] }
+                .background(SizeUpdaterView($plotSize))
+                
+                ScatterXAxisLabels(data: data, xLabelConfigProvider: xLabelConfigProvider)
+                
+                if let xTitle = data.xAxisTitle {
+                    Text(xTitle)
+                        .font(.callout)
                 }
             }
         }
-        .padding(.bottom)
     }
     
     private let xAxisLabelsHeight: CGFloat = 24
@@ -111,7 +135,7 @@ struct ScatterXAxisLabels: View {
         HStack {
             ForEach(data.minX..<data.maxX + 1) { x in
                 let config = xLabelConfigProvider(x)
-                if let text = config.text {
+                if let text = config.text {  // TODO: verify this works if some texts are nil
                     Text(text)
                         .font(.caption)
                         .rotationEffect(config.angle)
