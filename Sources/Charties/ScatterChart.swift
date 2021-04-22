@@ -21,7 +21,7 @@ private extension VerticalAlignment {
     static let bottomYLabelsAndPlot = VerticalAlignment(BottomYLabelsAndPlot.self)
 }
 
-struct SizeUpdaterView: View {
+struct SizeUpdater: View {
     private struct SizePreferenceKey: PreferenceKey {
         static var defaultValue: CGSize = .zero
 
@@ -86,7 +86,7 @@ public struct ScatterChart<Marker: View>: View {
                 .padding(.leading, plotLeadingPadding)
                 .padding(.trailing, plotTrailingPadding)
                 .alignmentGuide(.bottomYLabelsAndPlot) { $0[.bottom] }
-                .background(SizeUpdaterView($plotSize))
+                .background(SizeUpdater($plotSize))
                 
                 ScatterXAxisLabels(data: data, xLabelConfigProvider: xLabelConfigProvider)
                 
@@ -153,8 +153,8 @@ struct ScatterYAxisLabels: View {
     let data: ScatterData
     
     var body: some View {
-        VStack(alignment: .trailing) {
-            if data.yAxisMarkSize > 0 {
+        if data.yAxisMarkSize > 0 {
+            VStack(alignment: .trailing) {
                 let steps = Int(data.yAxisSpan / data.yAxisMarkSize)
                 
                 ForEach(0..<steps + 1) { idx in
@@ -168,9 +168,11 @@ struct ScatterYAxisLabels: View {
                     }
                 }
             }
+            .padding(.top, topPadding)
+            .padding(.bottom, bottomPadding)
+        } else {
+            EmptyView()
         }
-        .padding(.top, topPadding)
-        .padding(.bottom, bottomPadding)
     }
     
     private let font: UIFont = .preferredFont(forTextStyle: .caption1)
