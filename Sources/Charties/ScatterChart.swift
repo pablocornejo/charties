@@ -38,13 +38,18 @@ struct SizeUpdater: View {
     
     var body: some View {
         GeometryReader { geometry in
-            Rectangle()
-                .fill(Color.clear)
+            Color.clear
                 .preference(key: SizePreferenceKey.self, value: geometry.size)
         }
         .onPreferenceChange(SizePreferenceKey.self) { value in
             size = value
         }
+    }
+}
+
+extension View {
+    func captureSize(in size: Binding<CGSize>) -> some View {
+        background(SizeUpdater(size))
     }
 }
 
@@ -86,7 +91,7 @@ public struct ScatterChart<Marker: View>: View {
                 .padding(.leading, plotLeadingPadding)
                 .padding(.trailing, plotTrailingPadding)
                 .alignmentGuide(.bottomYLabelsAndPlot) { $0[.bottom] }
-                .background(SizeUpdater($plotSize))
+                .captureSize(in: $plotSize)
                 
                 ScatterXAxisLabels(data: data, xLabelConfigProvider: xLabelConfigProvider)
                 
