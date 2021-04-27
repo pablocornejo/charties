@@ -148,14 +148,12 @@ struct ScatterXAxisLabels: View {
         HStack {
             ForEach(data.minX..<data.maxX + 1) { x in
                 let config = xLabelConfigProvider(x)
-                if let text = config.text {  // TODO: verify this works if some texts are nil
-                    Text(text)
-                        .font(.caption)
-                        .rotationEffect(config.angle)
-                    
-                    if x < data.maxX {
-                        Spacer()
-                    }
+                Text(config.text ?? "")
+                    .font(.caption)
+                    .rotationEffect(config.angle)
+                
+                if x < data.maxX {
+                    Spacer()
                 }
             }
         }
