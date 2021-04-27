@@ -7,8 +7,10 @@
 
 import SwiftUI
 
-enum ScatterLineStyle {
-    case straight, smooth, none
+enum ChartLineStyle<Stroke: ShapeStyle> {
+    case straight(Stroke)
+    case smooth(Stroke)
+    case none
 }
 
 private extension VerticalAlignment {
@@ -53,11 +55,11 @@ extension View {
     }
 }
 
-public struct ScatterChart<Marker: View>: View {
+public struct ScatterChart<Marker: View, Stroke: ShapeStyle>: View {
     let data: ScatterData
     let marker: Marker
     let markerSize: CGSize
-    let lineStyle: ScatterLineStyle
+    let lineStyle: ChartLineStyle<Stroke>
     var xLabelConfigProvider: (Int) -> (text: String?, angle: Angle) = { ("\($0)", .zero) }
     
     @State private var plotSize: CGSize = .zero
@@ -67,6 +69,8 @@ public struct ScatterChart<Marker: View>: View {
             HStack {
                 if let yTitle = data.yAxisTitle {
                     Text(yTitle)
+                        .font(.callout)
+                        .multilineTextAlignment(.center)
                 }
                 ScatterYAxisLabels(data: data)
                     .alignmentGuide(.bottomYLabelsAndPlot) { $0[.bottom] }
@@ -78,9 +82,12 @@ public struct ScatterChart<Marker: View>: View {
                     ScatterYAxisGuidelines(data: data)
                     
                     switch lineStyle {
-                    case .smooth:   SmoothScatterLine(data: data)
-                    case .straight: StraightScatterLine(data: data)
-                    case .none:     EmptyView()
+                    case .smooth(let stroke):
+                        SmoothScatterLine(data: data, stroke: stroke)
+                    case .straight(let stroke):
+                        StraightScatterLine(data: data, stroke: stroke)
+                    case .none:
+                        EmptyView()
                     }
                     
                     ScatterMarkers(data: data,
@@ -98,6 +105,7 @@ public struct ScatterChart<Marker: View>: View {
                 if let xTitle = data.xAxisTitle {
                     Text(xTitle)
                         .font(.callout)
+                        .multilineTextAlignment(.center)
                 }
             }
         }
@@ -221,8 +229,10 @@ struct ScatterYAxisGuidelines: View {
     }
 }
 
-struct SmoothScatterLine: View {
+// TODO: refactor smooth and straight lines into one view
+struct SmoothScatterLine<Stroke: ShapeStyle>: View {
     let data: ScatterData
+    let stroke: Stroke
     
     @State var didAppear = false
     
@@ -257,8 +267,8 @@ struct SmoothScatterLine: View {
                 }
             }
             .trim(from: 0, to: didAppear ? 1 : 0)
-            // TODO: Refactor out stroke content and animation
-            .stroke(LinearGradient(gradient: Gradient(colors: [.yellow, .orange]), startPoint: .leading, endPoint: .trailing), style: StrokeStyle(lineWidth: 3, lineCap: .round, lineJoin: .round))
+            // TODO: Refactor out stroke style and animation
+            .stroke(stroke, style: StrokeStyle(lineWidth: 3, lineCap: .round, lineJoin: .round))
             .animation(Animation.easeOut(duration: 1.5).delay(0.2))
             .onAppear {
                 didAppear = true
@@ -307,8 +317,9 @@ struct SmoothScatterLine: View {
     }
 }
 
-struct StraightScatterLine: View {
+struct StraightScatterLine<Stroke: ShapeStyle>: View {
     let data: ScatterData
+    let stroke: Stroke
     
     @State var didAppear = false
     
@@ -323,8 +334,8 @@ struct StraightScatterLine: View {
                 path.addLines(points)
             }
             .trim(from: 0, to: didAppear ? 1 : 0)
-            // TODO: Refactor out stroke content and animation
-            .stroke(LinearGradient(gradient: Gradient(colors: [.yellow, .orange]), startPoint: .leading, endPoint: .trailing), style: StrokeStyle(lineWidth: 3, lineCap: .round, lineJoin: .round))
+            // TODO: Refactor out stroke style and animation
+            .stroke(stroke, style: StrokeStyle(lineWidth: 3, lineCap: .round, lineJoin: .round))
             .animation(Animation.easeOut(duration: 1.5).delay(0.2))
             .onAppear {
                 didAppear = true
@@ -365,11 +376,15 @@ struct ScatterChart_Previews: PreviewProvider {
         return data
     }
     
+    static var stroke: some ShapeStyle {
+        LinearGradient(gradient: Gradient(colors: [.yellow, .orange]), startPoint: .leading, endPoint: .trailing)
+    }
+    
     static var previews: some View {
         ScatterChart(data: data,
                      marker: Circle().strokeBorder(lineWidth: 2).foregroundColor(.orange),
                      markerSize: CGSize(width: 16, height: 16),
-                     lineStyle: .smooth)
+                     lineStyle: .smooth(stroke))
             .frame(height: 350)
     }
 }
