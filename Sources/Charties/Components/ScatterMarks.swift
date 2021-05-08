@@ -13,11 +13,11 @@ enum AppearAnimation {
 }
 
 struct ScatterMarkers<Marker: View>: View {
-    let data: ScatterData
+    let data: ChartData
     let marker: Marker
     let markerSize: CGSize
     let appearAnimation: AppearAnimation
-
+    
     @State private var didAppear = false
     
     var body: some View {
@@ -57,16 +57,16 @@ struct ScatterMarkers<Marker: View>: View {
 }
 
 struct ScatterMarkers_Previews: PreviewProvider {
-    static var data: ScatterData {
-        var data = ScatterData([(x: 1, y: -0.25),
-                                (x: 2, y: 2),
-                                (x: 3, y: 1),
-                                (x: 4, y: 2.5),
-                                (x: 5, y: 2),
-                                (x: 6, y: 2.5),
-                                (x: 7, y: 2),
-                                (x: 9, y: 1),
-                                (x: 10, y: 2.75)])
+    static var data: ChartData {
+        var data = ChartData([(x: 1, y: -0.25),
+                              (x: 2, y: 2),
+                              (x: 3, y: 1),
+                              (x: 4, y: 2.5),
+                              (x: 5, y: 2),
+                              (x: 6, y: 2.5),
+                              (x: 7, y: 2),
+                              (x: 9, y: 1),
+                              (x: 10, y: 2.75)])
         data.yAxisMarkSize = 1
         data.alwaysShowZero = true
         return data

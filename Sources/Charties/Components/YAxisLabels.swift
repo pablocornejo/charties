@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct YAxisLabels: View {
-    let data: ScatterData
+    let data: ChartData
     
     var body: some View {
         if data.yAxisMarkSize > 0 {

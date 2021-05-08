@@ -14,7 +14,7 @@ enum PlotLineStyle<Stroke: ShapeStyle> {
 }
 
 struct PlotLine<Stroke: ShapeStyle>: View {
-    let data: ScatterData
+    let data: ChartData
     let style: PlotLineStyle<Stroke>
     
     @State private var didAppear = false

@@ -8,7 +8,7 @@
 import Foundation
 import CoreGraphics
 
-public struct ScatterData {
+public struct ChartData {
     let data: [(x: Int, y: Double)]
     let xAxisTitle: String?
     let yAxisTitle: String?
@@ -90,7 +90,7 @@ public struct ScatterData {
 
 // MARK: - Private
 
-private extension ScatterData {
+private extension ChartData {
     func averagedSortedData(from data: [(x: Int, y: Double)]) -> [(x: Int, y: Double)] {
         var result: [(x: Int, y: Double)] = []
         for value in data {

@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct XAxisLabels: View {
-    let data: ScatterData
+    let data: ChartData
     let xLabelConfigProvider: (Int) -> (text: String?, angle: Angle)
     
     var body: some View {
