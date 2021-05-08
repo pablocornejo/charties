@@ -45,10 +45,10 @@ public struct LineChart<Marker: View, Stroke: ShapeStyle>: View {
                     
                     PlotLine(data: data, style: lineStyle)
                     
-                    ScatterMarkers(data: data,
-                                   marker: marker,
-                                   markerSize: markerSize,
-                                   appearAnimation: .fadeIn(1.5)) // TODO: Refactor out animation
+                    LineMarkers(data: data,
+                                marker: marker,
+                                markerSize: markerSize,
+                                appearAnimation: .fadeIn(1.5)) // TODO: Refactor out animation
                 }
                 .padding(.leading, plotLeadingPadding)
                 .padding(.trailing, plotTrailingPadding)
@@ -95,7 +95,7 @@ public struct LineChart<Marker: View, Stroke: ShapeStyle>: View {
     }
 }
 
-struct ScatterChart_Previews: PreviewProvider {
+struct LineChart_Previews: PreviewProvider {
     static var data: ChartData {
         var data = ChartData([(x: 1, y: -0.25),
                               (x: 2, y: 2),

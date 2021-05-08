@@ -1,5 +1,5 @@
 //
-//  ScatterMarks.swift
+//  LineMarks.swift
 //  
 //
 //  Created by Pablo Cornejo on 4/18/21.
@@ -12,7 +12,7 @@ enum AppearAnimation {
     case fadeIn(_ duration: Double)
 }
 
-struct ScatterMarkers<Marker: View>: View {
+struct LineMarkers<Marker: View>: View {
     let data: ChartData
     let marker: Marker
     let markerSize: CGSize
@@ -73,10 +73,10 @@ struct ScatterMarkers_Previews: PreviewProvider {
     }
     
     static var previews: some View {
-        ScatterMarkers(data: data,
-                       marker: Circle().strokeBorder(lineWidth: 2).foregroundColor(.blue),
-                       markerSize: CGSize(width: 16, height: 16),
-                       appearAnimation: .fadeIn(1.5))
+        LineMarkers(data: data,
+                    marker: Circle().strokeBorder(lineWidth: 2).foregroundColor(.blue),
+                    markerSize: CGSize(width: 16, height: 16),
+                    appearAnimation: .fadeIn(1.5))
             .padding()
             .frame(height: 350)
     }
