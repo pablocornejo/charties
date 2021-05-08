@@ -34,14 +34,14 @@ public struct ScatterChart<Marker: View, Stroke: ShapeStyle>: View {
                         .font(.callout)
                         .multilineTextAlignment(.center)
                 }
-                ScatterYAxisLabels(data: data)
+                YAxisLabels(data: data)
                     .alignmentGuide(.bottomYLabelsAndPlot) { $0[.bottom] }
             }
             .frame(height: plotSize.height)
             
             VStack {
                 ZStack {
-                    ScatterYAxisGuidelines(data: data)
+                    PlotGridlines(data: data)
                     
                     PlotLine(data: data, style: lineStyle)
                     
@@ -55,7 +55,7 @@ public struct ScatterChart<Marker: View, Stroke: ShapeStyle>: View {
                 .alignmentGuide(.bottomYLabelsAndPlot) { $0[.bottom] }
                 .captureSize(in: $plotSize)
                 
-                ScatterXAxisLabels(data: data, xLabelConfigProvider: xLabelConfigProvider)
+                XAxisLabels(data: data, xLabelConfigProvider: xLabelConfigProvider)
                 
                 if let xTitle = data.xAxisTitle {
                     Text(xTitle)
@@ -92,93 +92,6 @@ public struct ScatterChart<Marker: View, Stroke: ShapeStyle>: View {
             .map {
                 $0.size(withFont: axisLabelsFont).width / 2
             } ?? 0
-    }
-}
-
-struct ScatterXAxisLabels: View {
-    let data: ScatterData
-    let xLabelConfigProvider: (Int) -> (text: String?, angle: Angle)
-    
-    var body: some View {
-        HStack {
-            ForEach(data.minX..<data.maxX + 1) { x in
-                let config = xLabelConfigProvider(x)
-                Text(config.text ?? "")
-                    .font(.caption)
-                    .rotationEffect(config.angle)
-                
-                if x < data.maxX {
-                    Spacer()
-                }
-            }
-        }
-    }
-}
-
-struct ScatterYAxisLabels: View {
-    let data: ScatterData
-    
-    var body: some View {
-        if data.yAxisMarkSize > 0 {
-            VStack(alignment: .trailing) {
-                let steps = Int(data.yAxisSpan / data.yAxisMarkSize)
-                
-                ForEach(0..<steps + 1) { idx in
-                    let yValue = data.maxY - Double(idx) * data.yAxisMarkSize
-                    
-                    Text(text(forYValue: yValue))
-                        .font(.caption)
-                    
-                    if idx < steps {
-                        Spacer()
-                    }
-                }
-            }
-            .padding(.top, topPadding)
-            .padding(.bottom, bottomPadding)
-        } else {
-            EmptyView()
-        }
-    }
-    
-    private let font: UIFont = .preferredFont(forTextStyle: .caption1)
-    
-    private var topPadding: CGFloat {
-        -text(forYValue: data.maxY)
-            .size(withFont: font)
-            .height / 2
-    }
-    
-    private var bottomPadding: CGFloat {
-        -text(forYValue: data.minY)
-            .size(withFont: font)
-            .height / 2
-    }
-    
-    private func text(forYValue yValue: Double) -> String {
-        yValue == 0 ? "0" : String(format: "%.1f", yValue)
-    }
-}
-
-struct ScatterYAxisGuidelines: View {
-    let data: ScatterData
-    
-    var body: some View {
-        if data.yAxisMarkSize > 0 {
-            GeometryReader { reader in
-                let steps = Int(data.yAxisSpan / data.yAxisMarkSize)
-                let yStep = reader.size.height / CGFloat(steps)
-                
-                ForEach(0..<steps + 1) { idx in
-                    let yValue = data.maxY - Double(idx) * data.yAxisMarkSize
-                    
-                    Rectangle()
-                        .foregroundColor(yValue == 0 ? .primary : .secondary)
-                        .frame(height: 1)
-                        .offset(y: CGFloat(idx) * yStep)
-                }
-            }
-        }
     }
 }
 
