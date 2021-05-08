@@ -37,10 +37,10 @@ struct Example<Marker: View>: View {
     
     var body: some View {
             VStack {
-                ScatterChart(data: data,
-                             marker: marker,
-                             markerSize: markerSize,
-                             lineStyle: .smooth(stroke)) { day in
+                LineChart(data: data,
+                          marker: marker,
+                          markerSize: markerSize,
+                          lineStyle: .smooth(stroke)) { day in
                     let shouldShow = (day) % 2 == 0
                     return (shouldShow ? "X-\(day)" : nil, .zero)
                 }
