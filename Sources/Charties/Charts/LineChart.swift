@@ -21,10 +21,12 @@ public struct LineChart<Marker: View, Stroke: ShapeStyle>: View {
                 
                 PlotLine(data: data, style: lineStyle)
                 
-                LineMarkers(data: data,
-                            marker: marker,
-                            markerSize: markerSize,
-                            appearAnimation: .fadeIn(1.5)) // TODO: Refactor out animation
+                PlotMarkers(data: data,
+                        marker: marker,
+                        markerSize: markerSize,
+                        appearAnimation: .fadeIn(1.5)) { data, size in // TODO: Refactor out animation
+                    data.plotAveragedSortedPoints(for: size)
+                }
             }
         }
     }

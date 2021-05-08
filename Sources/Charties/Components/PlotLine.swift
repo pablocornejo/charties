@@ -38,9 +38,7 @@ struct PlotLine<Stroke: ShapeStyle>: View {
     }
     
     private func path(forSize size: CGSize) -> some Shape {
-        let points = data.averagedSortedPoints(forSize: size).map {
-            CGPoint(x: $0.x, y: size.height - $0.y)
-        }
+        let points = data.plotAveragedSortedPoints(for: size)
         
         switch style {
         case .smooth:

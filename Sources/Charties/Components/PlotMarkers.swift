@@ -1,8 +1,8 @@
 //
-//  LineMarks.swift
+//  PlotMarkers.swift
 //  
 //
-//  Created by Pablo Cornejo on 4/18/21.
+//  Created by Pablo Cornejo on 5/8/21.
 //
 
 import SwiftUI
@@ -12,20 +12,18 @@ enum AppearAnimation {
     case fadeIn(_ duration: Double)
 }
 
-struct LineMarkers<Marker: View>: View {
+struct PlotMarkers<Marker: View>: View {
     let data: ChartData
     let marker: Marker
     let markerSize: CGSize
     let appearAnimation: AppearAnimation
+    let pointsProvider: (ChartData, CGSize) -> [CGPoint]
     
     @State private var didAppear = false
     
     var body: some View {
         GeometryReader { reader in
-            let height = reader.size.height
-            let points = data.averagedSortedPoints(forSize: reader.size).map {
-                CGPoint(x: $0.x, y: height - $0.y)
-            }
+            let points = pointsProvider(data, reader.size)
             
             ZStack {
                 ForEach(0..<points.count) { idx in
@@ -56,7 +54,7 @@ struct LineMarkers<Marker: View>: View {
     }
 }
 
-struct ScatterMarkers_Previews: PreviewProvider {
+struct Markers_Previews: PreviewProvider {
     static var data: ChartData {
         var data = ChartData([(x: 1, y: -0.25),
                               (x: 2, y: 2),
@@ -73,11 +71,13 @@ struct ScatterMarkers_Previews: PreviewProvider {
     }
     
     static var previews: some View {
-        LineMarkers(data: data,
-                    marker: Circle().strokeBorder(lineWidth: 2).foregroundColor(.blue),
-                    markerSize: CGSize(width: 16, height: 16),
-                    appearAnimation: .fadeIn(1.5))
-            .padding()
-            .frame(height: 350)
+        PlotMarkers(data: data,
+                marker: Circle().strokeBorder(lineWidth: 2).foregroundColor(.blue),
+                markerSize: CGSize(width: 16, height: 16),
+                appearAnimation: .fadeIn(1.5)) { data, size in
+            data.plotPoints(for: size)
+        }
+        .padding()
+        .frame(height: 350)
     }
 }

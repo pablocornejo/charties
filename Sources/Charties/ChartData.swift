@@ -77,14 +77,14 @@ public struct ChartData {
         self.alwaysShowZero = alwaysShowZero
     }
     
-    func averagedSortedPoints(forSize size: CGSize) -> [CGPoint] {
+    func plotAveragedSortedPoints(for size: CGSize) -> [CGPoint] {
         averagedSortedData(from: data)
-            .map { data in
-                CGPoint(x: xOffset(forValue: data.x,
-                                   totalWidth: size.width),
-                        y: yOffset(forValue: data.y,
-                                   totalHeight: size.height))
-            }
+            .map { plotPoint(from: $0, for: size) }
+    }
+    
+    func plotPoints(for size: CGSize) -> [CGPoint] {
+        data
+            .map { plotPoint(from: $0, for: size) }
     }
 }
 
@@ -114,5 +114,13 @@ private extension ChartData {
     func yOffset(forValue y: Double, totalHeight: CGFloat) -> CGFloat {
         let offsetFromMin = y - minY
         return CGFloat(offsetFromMin / yAxisSpan) * totalHeight
+    }
+    
+    func plotPoint(from dataPoint: (x: Int, y: Double), for size: CGSize) -> CGPoint {
+        let x = xOffset(forValue: dataPoint.x, totalWidth: size.width)
+        let y = yOffset(forValue: dataPoint.y, totalHeight: size.height)
+        
+        return CGPoint(x: x,
+                       y: size.height - y)
     }
 }
