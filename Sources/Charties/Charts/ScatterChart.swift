@@ -7,12 +7,6 @@
 
 import SwiftUI
 
-enum ChartLineStyle<Stroke: ShapeStyle> {
-    case straight(Stroke)
-    case smooth(Stroke)
-    case none
-}
-
 private extension VerticalAlignment {
     private enum BottomYLabelsAndPlot: AlignmentID {
         static func defaultValue(in context: ViewDimensions) -> CGFloat {
@@ -23,43 +17,11 @@ private extension VerticalAlignment {
     static let bottomYLabelsAndPlot = VerticalAlignment(BottomYLabelsAndPlot.self)
 }
 
-struct SizeUpdater: View {
-    private struct SizePreferenceKey: PreferenceKey {
-        static var defaultValue: CGSize = .zero
-
-        static func reduce(value: inout CGSize, nextValue: () -> CGSize) {
-            value = nextValue()
-        }
-    }
-    
-    @Binding var size: CGSize
-    
-    init(_ size: Binding<CGSize>) {
-        self._size = size
-    }
-    
-    var body: some View {
-        GeometryReader { geometry in
-            Color.clear
-                .preference(key: SizePreferenceKey.self, value: geometry.size)
-        }
-        .onPreferenceChange(SizePreferenceKey.self) { value in
-            size = value
-        }
-    }
-}
-
-extension View {
-    func captureSize(in size: Binding<CGSize>) -> some View {
-        background(SizeUpdater(size))
-    }
-}
-
 public struct ScatterChart<Marker: View, Stroke: ShapeStyle>: View {
     let data: ScatterData
     let marker: Marker
     let markerSize: CGSize
-    let lineStyle: ChartLineStyle<Stroke>
+    let lineStyle: PlotLineStyle<Stroke>
     var xLabelConfigProvider: (Int) -> (text: String?, angle: Angle) = { ("\($0)", .zero) }
     
     @State private var plotSize: CGSize = .zero

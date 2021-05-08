@@ -7,9 +7,15 @@
 
 import SwiftUI
 
+enum PlotLineStyle<Stroke: ShapeStyle> {
+    case straight(Stroke)
+    case smooth(Stroke)
+    case none
+}
+
 struct PlotLine<Stroke: ShapeStyle>: View {
     let data: ScatterData
-    let style: ChartLineStyle<Stroke>
+    let style: PlotLineStyle<Stroke>
     
     @State private var didAppear = false
     
