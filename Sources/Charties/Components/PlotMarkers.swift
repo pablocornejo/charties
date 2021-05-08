@@ -33,7 +33,7 @@ struct PlotMarkers<Marker: View>: View {
                         .offset(x: point.x - markerSize.width / 2,
                                 y: point.y - markerSize.height / 2)
                         .opacity(didAppear ? 1 : 0)
-                        .animation(getAppearAnimation(forMarkAt: idx))
+                        .animation(appearAnimation(forMarkAt: idx, totalCount: points.count))
                 }
             }
             .onAppear {
@@ -42,14 +42,14 @@ struct PlotMarkers<Marker: View>: View {
         }
     }
     
-    private func getAppearAnimation(forMarkAt index: Int) -> Animation? {
+    private func appearAnimation(forMarkAt index: Int, totalCount: Int) -> Animation? {
         switch appearAnimation {
         case .none:
             return nil
         case .fadeIn(let duration):
             return Animation
                 .easeIn(duration: 0.2)
-                .delay(Double(index) * duration/Double(data.xAxisSpan))
+                .delay(Double(index) / Double(totalCount) * duration)
         }
     }
 }

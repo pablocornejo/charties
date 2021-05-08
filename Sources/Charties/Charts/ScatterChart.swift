@@ -21,9 +21,9 @@ public struct ScatterChart<Marker: View>: View {
                 PlotGridlines(data: data)
                 
                 PlotMarkers(data: data,
-                        marker: marker,
-                        markerSize: markerSize,
-                        appearAnimation: .fadeIn(1.5)) { data, size in // TODO: Refactor out animation
+                            marker: marker,
+                            markerSize: markerSize,
+                            appearAnimation: .fadeIn(1.5)) { data, size in // TODO: Refactor out animation
                     data.plotPoints(for: size)
                 }
             }
