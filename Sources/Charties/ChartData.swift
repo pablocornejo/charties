@@ -9,14 +9,14 @@ import Foundation
 import CoreGraphics
 
 public struct ChartData {
-    let data: [(x: Int, y: Double)]
+    let data: [(x: Double, y: Double)]
     let xAxisTitle: String?
     let yAxisTitle: String?
     var yAxisMarkSize: Double
     var alwaysShowZero: Bool
     
-    var minX: Int { data.map(\.x).min() ?? 0 }
-    var maxX: Int { data.map(\.x).max() ?? 0 }
+    var minX: Int { Int(floor(data.map(\.x).min() ?? 0)) }
+    var maxX: Int { Int(ceil(data.map(\.x).max() ?? 0)) }
     
     var minY: Double {
         let minValue = data.map(\.y).min() ?? 0
@@ -65,7 +65,7 @@ public struct ChartData {
     var xAxisSpan: Int { maxX - minX }
     var yAxisSpan: Double { maxY - minY }
     
-    init(_ data: [(x: Int, y: Double)],
+    init(_ data: [(x: Double, y: Double)],
          xAxisTitle: String? = nil,
          yAxisTitle: String? = nil,
          yAxisMarkSize: Double = 0,
@@ -91,8 +91,8 @@ public struct ChartData {
 // MARK: - Private
 
 private extension ChartData {
-    func averagedSortedData(from data: [(x: Int, y: Double)]) -> [(x: Int, y: Double)] {
-        var result: [(x: Int, y: Double)] = []
+    func averagedSortedData(from data: [(x: Double, y: Double)]) -> [(x: Double, y: Double)] {
+        var result: [(x: Double, y: Double)] = []
         for value in data {
             if let existingIdx = result.firstIndex(where: { $0.x == value.x }) {
                 let existing = result[existingIdx]
@@ -105,10 +105,10 @@ private extension ChartData {
         return result.sorted { $0.x < $1.x }
     }
     
-    func xOffset(forValue x: Int, totalWidth: CGFloat) -> CGFloat {
+    func xOffset(forValue x: Double, totalWidth: CGFloat) -> CGFloat {
         let span = CGFloat(xAxisSpan)
-        let offsetFromMin = CGFloat(x - minX)
-        return (CGFloat(offsetFromMin / span)) * totalWidth
+        let offsetFromMin = CGFloat(x - Double(minX))
+        return offsetFromMin / span * totalWidth
     }
     
     func yOffset(forValue y: Double, totalHeight: CGFloat) -> CGFloat {
@@ -116,7 +116,7 @@ private extension ChartData {
         return CGFloat(offsetFromMin / yAxisSpan) * totalHeight
     }
     
-    func plotPoint(from dataPoint: (x: Int, y: Double), for size: CGSize) -> CGPoint {
+    func plotPoint(from dataPoint: (x: Double, y: Double), for size: CGSize) -> CGPoint {
         let x = xOffset(forValue: dataPoint.x, totalWidth: size.width)
         let y = yOffset(forValue: dataPoint.y, totalHeight: size.height)
         
