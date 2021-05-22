@@ -7,8 +7,8 @@
 
 import SwiftUI
 
-struct SizeUpdater: View {
-    private struct SizePreferenceKey: PreferenceKey {
+private struct SizeUpdater: View {
+    struct SizePreferenceKey: PreferenceKey {
         static var defaultValue: CGSize = .zero
 
         static func reduce(value: inout CGSize, nextValue: () -> CGSize) {
@@ -33,7 +33,7 @@ struct SizeUpdater: View {
     }
 }
 
-extension View {
+internal extension View {
     func captureSize(in size: Binding<CGSize>) -> some View {
         background(SizeUpdater(size))
     }
