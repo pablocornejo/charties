@@ -10,7 +10,6 @@ import SwiftUI
 struct Example<Marker: View>: View {
     let lineColors: [Color]
     let marker: Marker
-    var markerSize: CGSize = .init(width: 16, height: 16)
     
     let data: ChartData = {
         var data = ChartData([(x: 1, y: -0.25),
@@ -39,7 +38,6 @@ struct Example<Marker: View>: View {
         VStack {
             LineChart(data: data,
                       marker: marker,
-                      markerSize: markerSize,
                       lineStyle: .smooth(stroke)) { day in
                 let shouldShow = (day) % 2 == 0
                 return (shouldShow ? "X-\(day)" : nil, .zero)
@@ -54,19 +52,16 @@ struct Example_Previews: PreviewProvider {
     static var previews: some View {
         Group {
             Example(lineColors: [Color(.systemPurple), Color(.systemIndigo)],
-                    marker: Circle().strokeBorder(lineWidth: 2).foregroundColor(.blue))
+                    marker: Circle().strokeBorder(lineWidth: 2).foregroundColor(.blue).frame(width: 16, height: 16))
             
             Example(lineColors: [Color(.systemPink), Color(.systemPurple)],
-                    marker: Text("❌"),
-                    markerSize: .init(width: 24, height: 24))
+                    marker: Text("❌"))
             
             Example(lineColors: [Color(.systemGray3), Color(.systemGray)],
-                    marker: Text("👽"),
-                    markerSize: .init(width: 24, height: 24))
+                    marker: Text("👽"))
             
             Example(lineColors: [.clear],
-                    marker: Text("🤖"),
-                    markerSize: .init(width: 24, height: 24))
+                    marker: Text("🤖"))
         }
     }
 }

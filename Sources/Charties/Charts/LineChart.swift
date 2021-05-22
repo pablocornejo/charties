@@ -10,7 +10,6 @@ import SwiftUI
 public struct LineChart<Marker: View, Stroke: ShapeStyle>: View {
     let data: ChartData
     let marker: Marker
-    let markerSize: CGSize
     let lineStyle: PlotLineStyle<Stroke>
     var xLabelConfigProvider: (Int) -> (text: String?, angle: Angle) = { ("\($0)", .zero) }
     
@@ -22,9 +21,8 @@ public struct LineChart<Marker: View, Stroke: ShapeStyle>: View {
                 PlotLine(data: data, style: lineStyle)
                 
                 PlotMarkers(data: data,
-                        marker: marker,
-                        markerSize: markerSize,
-                        appearAnimation: .fadeIn(1.5)) { data, size in // TODO: Refactor out animation
+                            marker: marker,
+                            appearAnimation: .fadeIn(1.5)) { data, size in // TODO: Refactor out animation
                     data.plotAveragedSortedPoints(for: size)
                 }
             }
@@ -56,8 +54,7 @@ struct LineChart_Previews: PreviewProvider {
     
     static var previews: some View {
         LineChart(data: data,
-                  marker: Circle().strokeBorder(lineWidth: 2).foregroundColor(.orange),
-                  markerSize: CGSize(width: 16, height: 16),
+                  marker: Circle().strokeBorder(lineWidth: 2).foregroundColor(.orange).frame(width: 16, height: 16),
                   lineStyle: .smooth(stroke))
             .frame(height: 350)
     }

@@ -10,7 +10,6 @@ import SwiftUI
 public struct ScatterChart<Marker: View>: View {
     let data: ChartData
     let marker: Marker
-    let markerSize: CGSize
     var xLabelConfigProvider: (Int) -> (text: String?, angle: Angle) = { ("\($0)", .zero) }
     
     @State private var plotSize: CGSize = .zero
@@ -22,7 +21,6 @@ public struct ScatterChart<Marker: View>: View {
                 
                 PlotMarkers(data: data,
                             marker: marker,
-                            markerSize: markerSize,
                             appearAnimation: .fadeIn(1.5)) { data, size in // TODO: Refactor out animation
                     data.plotPoints(for: size)
                 }
@@ -53,8 +51,7 @@ struct ScatterChart_Previews: PreviewProvider {
     
     static var previews: some View {
         ScatterChart(data: data,
-                     marker: Rectangle().strokeBorder(lineWidth: 2).foregroundColor(.blue),
-                     markerSize: CGSize(width: 16, height: 16))
+                     marker: Rectangle().strokeBorder(lineWidth: 2).foregroundColor(.blue).frame(width: 16, height: 16))
             .frame(height: 350)
     }
 }

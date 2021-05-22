@@ -15,11 +15,11 @@ enum AppearAnimation {
 struct PlotMarkers<Marker: View>: View {
     let data: ChartData
     let marker: Marker
-    let markerSize: CGSize
     let appearAnimation: AppearAnimation
     let pointsProvider: (ChartData, CGSize) -> [CGPoint]
     
     @State private var didAppear = false
+    @State private var markerSize: CGSize = .zero
     
     var body: some View {
         GeometryReader { reader in
@@ -29,7 +29,7 @@ struct PlotMarkers<Marker: View>: View {
                 ForEach(0..<points.count) { idx in
                     let point = points[idx]
                     marker
-                        .frame(width: markerSize.width, height: markerSize.height)
+                        .captureSize(in: $markerSize)
                         .offset(x: point.x - markerSize.width / 2,
                                 y: point.y - markerSize.height / 2)
                         .opacity(didAppear ? 1 : 0)
@@ -72,9 +72,8 @@ struct Markers_Previews: PreviewProvider {
     
     static var previews: some View {
         PlotMarkers(data: data,
-                marker: Circle().strokeBorder(lineWidth: 2).foregroundColor(.blue),
-                markerSize: CGSize(width: 16, height: 16),
-                appearAnimation: .fadeIn(1.5)) { data, size in
+                    marker: Circle().strokeBorder(lineWidth: 2).foregroundColor(.blue).frame(width: 16, height: 16),
+                    appearAnimation: .fadeIn(1.5)) { data, size in
             data.plotPoints(for: size)
         }
         .padding()
