@@ -13,7 +13,7 @@ I'll be updating this document with images and general usage documentation as pr
 ### Usage
 ```swift
 let dataPoints = [(x: 1.0, y: -0.25), (x: 3, y: 1), (x: 4, y: 2.5), (x: 6, y: 1), (x: 10, y: 2.75)]
-var chartData = ChartData(dataPoints, xAxisTitle: "Day", yAxisTitle: "pH", yAxisMarkSize: 1)
+var chartData = ChartData(dataPoints, xAxisTitle: "Day", yAxisTitle: "pH", yAxisGridlineStep: 1)
 
 let chart = LineChart(data: chartData,
                       marker: Text("❌"),               // Marker can be any view! Make sure to fix it's frame when needed. 

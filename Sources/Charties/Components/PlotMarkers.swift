@@ -65,7 +65,7 @@ struct Markers_Previews: PreviewProvider {
                               (x: 7, y: 2),
                               (x: 9, y: 1),
                               (x: 10, y: 2.75)])
-        data.yAxisMarkSize = 1
+        data.yAxisGridlineStep = 1
         data.alwaysShowZero = true
         return data
     }

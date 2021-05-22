@@ -12,7 +12,7 @@ public struct ChartData {
     let data: [(x: Double, y: Double)]
     let xAxisTitle: String?
     let yAxisTitle: String?
-    var yAxisMarkSize: Double
+    var yAxisGridlineStep: Double
     var alwaysShowZero: Bool
     
     var minX: Int { Int(floor(data.map(\.x).min() ?? 0)) }
@@ -21,20 +21,20 @@ public struct ChartData {
     var minY: Double {
         let minValue = data.map(\.y).min() ?? 0
         
-        guard yAxisMarkSize > 0 else { return minValue }
+        guard yAxisGridlineStep > 0 else { return minValue }
         
         if minValue >= 0 && alwaysShowZero {
             return 0
         }
         
-        let stepRemainder = minValue.truncatingRemainder(dividingBy: yAxisMarkSize)
+        let stepRemainder = minValue.truncatingRemainder(dividingBy: yAxisGridlineStep)
         
         if stepRemainder == 0 {
             return minValue
         } else {
             var minY = minValue - stepRemainder
             if minValue < 0 {
-                minY -= yAxisMarkSize
+                minY -= yAxisGridlineStep
             }
             return minY
         }
@@ -43,20 +43,20 @@ public struct ChartData {
     var maxY: Double {
         let maxValue = data.map(\.y).max() ?? 0
         
-        guard yAxisMarkSize > 0 else { return maxValue }
+        guard yAxisGridlineStep > 0 else { return maxValue }
         
         if maxValue <= 0 && alwaysShowZero {
             return 0
         }
         
-        let stepRemainder = maxValue.truncatingRemainder(dividingBy: yAxisMarkSize)
+        let stepRemainder = maxValue.truncatingRemainder(dividingBy: yAxisGridlineStep)
         
         if stepRemainder == 0 {
             return maxValue
         } else {
             var maxY = maxValue - stepRemainder
             if maxValue > 0 {
-                maxY += yAxisMarkSize
+                maxY += yAxisGridlineStep
             }
             return maxY
         }
@@ -73,7 +73,7 @@ public struct ChartData {
         self.data = data
         self.xAxisTitle = xAxisTitle
         self.yAxisTitle = yAxisTitle
-        self.yAxisMarkSize = yAxisMarkSize
+        self.yAxisGridlineStep = yAxisMarkSize
         self.alwaysShowZero = alwaysShowZero
     }
     

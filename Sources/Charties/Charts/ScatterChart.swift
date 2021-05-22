@@ -44,7 +44,7 @@ struct ScatterChart_Previews: PreviewProvider {
                               (x: 10, y: 2.75)],
                              xAxisTitle: "Day",
                              yAxisTitle: "pH")
-        data.yAxisMarkSize = 1
+        data.yAxisGridlineStep = 1
         data.alwaysShowZero = true
         return data
     }

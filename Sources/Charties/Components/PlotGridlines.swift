@@ -11,13 +11,13 @@ struct PlotGridlines: View {
     let data: ChartData
     
     var body: some View {
-        if data.yAxisMarkSize > 0 {
+        if data.yAxisGridlineStep > 0 {
             GeometryReader { reader in
-                let steps = Int(data.yAxisSpan / data.yAxisMarkSize)
+                let steps = Int(data.yAxisSpan / data.yAxisGridlineStep)
                 let yStep = reader.size.height / CGFloat(steps)
                 
                 ForEach(0..<steps + 1) { idx in
-                    let yValue = data.maxY - Double(idx) * data.yAxisMarkSize
+                    let yValue = data.maxY - Double(idx) * data.yAxisGridlineStep
                     
                     Rectangle()
                         .foregroundColor(yValue == 0 ? .primary : .secondary)

@@ -87,7 +87,7 @@ struct CartesianChart_Previews: PreviewProvider {
                               (x: 10, y: 2.75)],
                              xAxisTitle: "X",
                              yAxisTitle: "Y")
-        data.yAxisMarkSize = 1
+        data.yAxisGridlineStep = 1
         data.alwaysShowZero = true
         return data
     }

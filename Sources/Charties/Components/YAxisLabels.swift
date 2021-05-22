@@ -11,12 +11,12 @@ struct YAxisLabels: View {
     let data: ChartData
     
     var body: some View {
-        if data.yAxisMarkSize > 0 {
+        if data.yAxisGridlineStep > 0 {
             VStack(alignment: .trailing) {
-                let steps = Int(data.yAxisSpan / data.yAxisMarkSize)
+                let steps = Int(data.yAxisSpan / data.yAxisGridlineStep)
                 
                 ForEach(0..<steps + 1) { idx in
-                    let yValue = data.maxY - Double(idx) * data.yAxisMarkSize
+                    let yValue = data.maxY - Double(idx) * data.yAxisGridlineStep
                     
                     Text(text(forYValue: yValue))
                         .font(.caption)

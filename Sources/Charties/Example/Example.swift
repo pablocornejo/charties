@@ -23,7 +23,7 @@ struct Example<Marker: View>: View {
                               (x: 10, y: 2.75)],
                              xAxisTitle: "X Axis",
                              yAxisTitle: "Y\nAxis")
-        data.yAxisMarkSize = 1
+        data.yAxisGridlineStep = 1
         data.alwaysShowZero = true
         return data
     }()
