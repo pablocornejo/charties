@@ -41,6 +41,9 @@ public struct BarChart: View {
                     .padding(.horizontal, 8)
                 }
             }
+            .padding(.vertical)
+            
+            Legend(labels: data.series.map { ($0.name, $0.name == "Series A" ? Color.blue : Color.green) })
         }
     }
     
