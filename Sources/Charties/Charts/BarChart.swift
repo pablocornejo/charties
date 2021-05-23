@@ -13,7 +13,7 @@ public struct BarChart: View {
     @State private var itemWidth: CGFloat = .zero
     @State private var barsWidth: CGFloat = .zero
     
-    var body: some View {
+    public var body: some View {
         VStack {
             if !data.title.isEmpty {
                 Text(data.title)
@@ -30,13 +30,8 @@ public struct BarChart: View {
                         ForEach(0..<data.categoryValuesSpan) { itemIdx in
                             HStack(spacing: itemWidth / 20) {
                                 ForEach(data.categories, id: \.name) { serie in
-                                    ZStack {
-                                        BarChartCell(filledFraction: normalizedValue(from: serie, at: itemIdx),
-                                                     bottomPaddingFraction: bottomPaddingFraction(from: serie, at: itemIdx),
-                                                     fill: serie.name == "Series A" ? Color.blue : Color.green)
-                                        Text("\(Int(serie.values[itemIdx]))")
-                                            .font(.caption)
-                                    }
+                                    BarChartCell(filledRange: filledRange(forBarAt: itemIdx, in: serie),
+                                                 fill: serie.name == "Series A" ? Color.blue : Color.green)
                                 }
                             }
                             .captureWidth(in: $itemWidth)
@@ -53,13 +48,13 @@ public struct BarChart: View {
         barsWidth / CGFloat(data.categoryValuesSpan) / 5
     }
     
-    private func normalizedValue(from category: BarChartData.Category, at index: Int) -> Double {
+    private func filledFraction(forBarAt index: Int, in category: BarChartData.Category) -> Double {
         guard data.span > 0, index < category.values.count else { return 0 }
         
-        return category.values[index] / data.span
+        return abs(category.values[index] / data.span)
     }
     
-    private func bottomPaddingFraction(from category: BarChartData.Category, at index: Int) -> Double {
+    private func lowerBoundFraction(forBarAt index: Int, in category: BarChartData.Category) -> Double {
         guard data.min < 0 else { return 0 }
         
         let value = category.values[index]
@@ -67,15 +62,19 @@ public struct BarChart: View {
         
         return value < 0 ? maxPaddingFraction - abs(value / data.span) : maxPaddingFraction
     }
+    
+    private func filledRange(forBarAt index: Int, in category: BarChartData.Category) -> ClosedRange<Double> {
+        let lowerBound = lowerBoundFraction(forBarAt: index, in: category)
+        
+        return lowerBound...lowerBound + filledFraction(forBarAt: index, in: category)
+    }
 }
 
 struct BarChartCell<Fill: ShapeStyle>: View {
-    var filledFraction: Double
-    var bottomPaddingFraction: Double
+    var filledRange: ClosedRange<Double>
     var fill: Fill
     
     @State private var barWidth: CGFloat = .zero
-    @State private var negativeHeight: CGFloat = .zero
     
     var body: some View {
         GeometryReader { proxy in
@@ -84,13 +83,12 @@ struct BarChartCell<Fill: ShapeStyle>: View {
                 
                 RoundedRectangle(cornerRadius: barWidth / 4)
                     .fill(fill)
-                    .frame(height: abs(proxy.size.height * CGFloat(filledFraction)))
+                    .frame(height: proxy.size.height * CGFloat(filledRange.upperBound - filledRange.lowerBound))
                     .captureWidth(in: $barWidth)
                 
                 Rectangle()
-                    .frame(height: proxy.size.height * CGFloat(bottomPaddingFraction))
+                    .frame(height: proxy.size.height * CGFloat(filledRange.lowerBound))
                     .foregroundColor(.clear)
-                    .captureHeight(in: $negativeHeight)
             }
         }
     }
