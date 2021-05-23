@@ -22,7 +22,7 @@ struct CartesianChart<PlotContent: View>: View {
     var xLabelConfigProvider: (Int) -> (text: String?, angle: Angle) = { ("\($0)", .zero) }
     @ViewBuilder let plotContent: PlotContent
     
-    @State private var plotSize: CGSize = .zero
+    @State private var plotHeight: CGFloat = .zero
     
     var body: some View {
         HStack(alignment: .bottomYLabelsAndPlot) {
@@ -37,14 +37,14 @@ struct CartesianChart<PlotContent: View>: View {
                             steps: Int(data.yAxisSpan / data.yAxisGridlineStep))
                     .alignmentGuide(.bottomYLabelsAndPlot) { $0[.bottom] }
             }
-            .frame(height: plotSize.height)
+            .frame(height: plotHeight)
             
             VStack {
                 plotContent
                     .padding(.leading, plotLeadingPadding)
                     .padding(.trailing, plotTrailingPadding)
                     .alignmentGuide(.bottomYLabelsAndPlot) { $0[.bottom] }
-                    .captureSize(in: $plotSize)
+                    .captureHeight(in: $plotHeight)
                 
                 XAxisLabels(data: data, xLabelConfigProvider: xLabelConfigProvider)
                 

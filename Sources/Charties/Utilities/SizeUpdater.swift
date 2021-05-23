@@ -34,7 +34,23 @@ private struct SizeUpdater: View {
 }
 
 internal extension View {
-    func captureSize(in size: Binding<CGSize>) -> some View {
-        background(SizeUpdater(size))
+    func captureSize(in sizeBinding: Binding<CGSize>) -> some View {
+        background(SizeUpdater(sizeBinding))
+    }
+    
+    func captureWidth(in widthBinding: Binding<CGFloat>) -> some View {
+        let sizeBinding = Binding<CGSize>(get: { .zero }, set: { size in
+            widthBinding.wrappedValue = size.width
+        })
+        
+        return captureSize(in: sizeBinding)
+    }
+    
+    func captureHeight(in heightBinding: Binding<CGFloat>) -> some View {
+        let sizeBinding = Binding<CGSize>(get: { .zero }, set: { size in
+            heightBinding.wrappedValue = size.height
+        })
+        
+        return captureSize(in: sizeBinding)
     }
 }
