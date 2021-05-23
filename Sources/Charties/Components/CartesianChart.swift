@@ -32,7 +32,9 @@ struct CartesianChart<PlotContent: View>: View {
                         .font(.callout)
                         .multilineTextAlignment(.center)
                 }
-                YAxisLabels(data: data)
+                YAxisLabels(max: data.maxY,
+                            min: data.minY,
+                            steps: Int(data.yAxisSpan / data.yAxisGridlineStep))
                     .alignmentGuide(.bottomYLabelsAndPlot) { $0[.bottom] }
             }
             .frame(height: plotSize.height)

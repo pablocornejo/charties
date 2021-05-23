@@ -1,5 +1,5 @@
 //
-//  SwiftUIView.swift
+//  YAxisLabels.swift
 //  
 //
 //  Created by Pablo Cornejo on 5/8/21.
@@ -8,15 +8,17 @@
 import SwiftUI
 
 struct YAxisLabels: View {
-    let data: ChartData
+    let max: Double
+    let min: Double
+    let steps: Int
     
     var body: some View {
-        if data.yAxisGridlineStep > 0 {
+        if steps > 0 && span > 0 {
             VStack(alignment: .trailing) {
-                let steps = Int(data.yAxisSpan / data.yAxisGridlineStep)
+                let stepValue = span / Double(steps)
                 
                 ForEach(0..<steps + 1) { idx in
-                    let yValue = data.maxY - Double(idx) * data.yAxisGridlineStep
+                    let yValue = max - Double(idx) * stepValue
                     
                     Text(text(forYValue: yValue))
                         .font(.caption)
@@ -33,16 +35,18 @@ struct YAxisLabels: View {
         }
     }
     
+    private var span: Double { max - min }
+    
     private let font: UIFont = .preferredFont(forTextStyle: .caption1)
     
     private var topPadding: CGFloat {
-        -text(forYValue: data.maxY)
+        -text(forYValue: max)
             .size(withFont: font)
             .height / 2
     }
     
     private var bottomPadding: CGFloat {
-        -text(forYValue: data.minY)
+        -text(forYValue: min)
             .size(withFont: font)
             .height / 2
     }
