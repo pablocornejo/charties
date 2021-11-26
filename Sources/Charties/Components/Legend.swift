@@ -10,12 +10,11 @@ import SwiftUI
 struct Legend<Fill: ShapeStyle>: View {
     let labels: [(String, Fill)]
     
-    @State private var textHeight: CGFloat = .zero
+    @State private var gridWidth: CGFloat = .zero
     
-    private let columns: [GridItem] = [
-        GridItem(.adaptive(minimum: 150), spacing: 24, alignment: .trailing),
-        GridItem(.adaptive(minimum: 150), alignment: .leading)
-    ]
+    private let spacing: CGFloat = 16
+    
+    private var columns: [GridItem] { [GridItem(.adaptive(minimum: minimumItemWidth), spacing: spacing)] }
     
     var body: some View {
         LazyVGrid(columns: columns) {
@@ -30,11 +29,34 @@ struct Legend<Fill: ShapeStyle>: View {
                 }
             }
         }
+        .captureWidth(in: $gridWidth)
+    }
+    
+    private var minimumItemWidth: CGFloat {
+        let availableWidth = gridWidth - (CGFloat(labels.count) - 1) * spacing
+        let minItemWidth: CGFloat = 100
+        
+        return max(availableWidth / CGFloat(labels.count), minItemWidth)
     }
 }
 
 struct LegendView_Previews: PreviewProvider {
+    static let labels = [
+        ("Category A", Color.blue),
+        ("Category B", Color.green),
+        ("Category C", Color.yellow),
+        ("Category D", Color.purple),
+        ("Category E", Color.black),
+        ("Category F", Color.brown),
+        ("Category G", Color.cyan)
+    ]
+    
     static var previews: some View {
-        Legend(labels: [("Category A", Color.blue), ("Category B", Color.green), ("Category C", Color.yellow)])
+        Group {
+            Legend(labels: labels)
+            
+            Legend(labels: labels)
+                .previewInterfaceOrientation(.landscapeLeft)
+        }
     }
 }
